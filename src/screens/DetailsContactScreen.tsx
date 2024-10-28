@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
+import { Contact } from '../models/Contact';
 import { getContactById } from '../services/ContactService';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Contact } from '../models/contact';
 
 type RootStackParamList = {
   DetailsContact: { contactId: string };
