@@ -7,6 +7,7 @@ export type Contact = {
   id: string;
   name: string;
   phone: string;
+  email?: string;
 };
 
 type RootStackParamList = {
@@ -25,9 +26,7 @@ type Props = {
 const AddContactScreen: React.FC<Props> = ({ navigation, route }) => {
   const [name, setName] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
-
-
-
+  
   const saveContact = () => {
 
     if (!name || !phone) {
@@ -59,9 +58,8 @@ const AddContactScreen: React.FC<Props> = ({ navigation, route }) => {
         value={phone}
         onChangeText={(text) => setPhone(text)}
       />
+      
       <Button title="Guardar" onPress={saveContact} />
-      {/* <Button title="Guardar" onPress={saveContact} />
-      const myIcon = <Icon name="rocket" size={30} color="#900" />; */}
     </View>
   );
 };

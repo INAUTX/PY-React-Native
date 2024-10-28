@@ -7,7 +7,6 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 type RootStackParamList = {
   ContactList: undefined;
   AddContact: { addContact: (contact: Contact) => void };
-  EditContact: { contact: Contact };
 };
 
 type ContactListScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'ContactList'>;
