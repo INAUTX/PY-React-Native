@@ -1,10 +1,10 @@
-import * as React from 'react';
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
-import ContactListScreen from '../screens/ContactListScreen';
-import AddContactScreen from '../screens/AddContactScreen';
 import DetailsContactScreen from '../screens/DetailsContactScreen';
+import AddContactScreen from '../screens/AddContactScreen';
+import ContactListScreen from '../screens/ContactListScreen';
+
 
 export type RootStackParamList = {
   Contacts: undefined;
@@ -14,10 +14,16 @@ export type RootStackParamList = {
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-function Navigation() {
+const Navigation: React.FC = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Contacts">
+      <Stack.Navigator
+        initialRouteName="Contacts"
+        screenOptions={{
+          headerTintColor: 'white',
+          headerStyle: { backgroundColor: '#007BFF' },
+        }}
+      >
         <Stack.Screen
           name="Contacts"
           component={ContactListScreen}

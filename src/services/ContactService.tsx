@@ -32,3 +32,18 @@ export const getContactById = async (id: string): Promise<Contact | undefined> =
   const contacts = await getContacts();
   return contacts.find((contact) => contact.id === id);
 };
+
+export const updateContact = async (updatedContact: Contact): Promise<void> => {
+  const contacts = await getContacts();
+  const index = contacts.findIndex((contact) => contact.id === updatedContact.id);
+  if (index !== -1) {
+    contacts[index] = updatedContact;
+    await AsyncStorage.setItem(CONTACTS_KEY, JSON.stringify(contacts));
+  }
+};
+
+export const deleteContact = async (id: string): Promise<void> => {
+  const contacts = await getContacts();
+  const updatedContacts = contacts.filter((contact) => contact.id !== id);
+  await AsyncStorage.setItem(CONTACTS_KEY, JSON.stringify(updatedContacts));
+};
