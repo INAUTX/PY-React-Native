@@ -1,5 +1,3 @@
-// src/screens/DetailsContactScreen.tsx
-
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -12,7 +10,11 @@ import {
   Alert,
 } from 'react-native';
 import { Contact } from '../models/Contact';
-import { deleteContact, getContactById, updateContact } from '../services/ContactService';
+import {
+  deleteContact,
+  getContactById,
+  updateContact,
+} from '../services/ContactService';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   launchCamera,
@@ -21,10 +23,16 @@ import {
   ImageLibraryOptions,
   CameraOptions,
 } from 'react-native-image-picker';
-import Icon from 'react-native-vector-icons/Ionicons'; // Importación corregida
+import Icon from 'react-native-vector-icons/Ionicons';
+
+import MapView, {
+  Marker,
+  MapPressEvent,
+  PROVIDER_GOOGLE,
+} from 'react-native-maps';
 
 type RootStackParamList = {
-  Contacts: undefined; // Agregado
+  Contacts: undefined;
   DetailsContact: { contactId: string };
 };
 
@@ -37,6 +45,14 @@ const DetailsContactScreen: React.FC<Props> = ({ route, navigation }) => {
   const [phone, setPhone] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [photo, setPhoto] = useState<string | undefined>(undefined);
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [initialRegion] = useState({
+    latitude: 4.711,
+    longitude: -74.0721,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+  });
 
   useEffect(() => {
     const loadContact = async () => {
@@ -47,6 +63,8 @@ const DetailsContactScreen: React.FC<Props> = ({ route, navigation }) => {
         setPhone(contactData.phone);
         setEmail(contactData.email || '');
         setPhoto(contactData.photo);
+        setLatitude(contactData.latitude || null);
+        setLongitude(contactData.longitude || null);
       }
     };
     loadContact();
@@ -57,15 +75,21 @@ const DetailsContactScreen: React.FC<Props> = ({ route, navigation }) => {
       headerRight: () => (
         <View style={styles.headerButtons}>
           {isEditing ? (
-            <TouchableOpacity onPress={toggleEditMode} style={styles.headerButton}>
+            <TouchableOpacity
+              onPress={toggleEditMode}
+              style={styles.headerButton}>
               <Text style={styles.headerButtonText}>Cancelar</Text>
             </TouchableOpacity>
           ) : (
             <>
-              <TouchableOpacity onPress={toggleEditMode} style={styles.headerButtonIcon}>
+              <TouchableOpacity
+                onPress={toggleEditMode}
+                style={styles.headerButtonIcon}>
                 <Icon name="pencil" size={24} color="white" />
               </TouchableOpacity>
-              <TouchableOpacity onPress={confirmDelete} style={styles.headerButtonIcon}>
+              <TouchableOpacity
+                onPress={confirmDelete}
+                style={styles.headerButtonIcon}>
                 <Icon name="trash" size={24} color="white" />
               </TouchableOpacity>
             </>
@@ -73,7 +97,7 @@ const DetailsContactScreen: React.FC<Props> = ({ route, navigation }) => {
         </View>
       ),
     });
-  }, [navigation, isEditing]);
+  }, [navigation, isEditing, contact]);
 
   const toggleEditMode = () => {
     setIsEditing(!isEditing);
@@ -82,7 +106,7 @@ const DetailsContactScreen: React.FC<Props> = ({ route, navigation }) => {
   const confirmDelete = () => {
     Alert.alert(
       'Eliminar Contacto',
-      '¿Estás seguro de que deseas eliminar este contacto?',
+      `¿Estás seguro de que deseas eliminar este contacto?`,
       [
         { text: 'Cancelar', style: 'cancel' },
         { text: 'Eliminar', style: 'destructive', onPress: handleDelete },
@@ -94,8 +118,11 @@ const DetailsContactScreen: React.FC<Props> = ({ route, navigation }) => {
   const handleDelete = async () => {
     if (contact) {
       await deleteContact(contact.id);
-      Alert.alert('Contacto eliminado', 'El contacto ha sido eliminado exitosamente.');
-      navigation.navigate('Contacts'); // Ahora 'Contacts' está definido en RootStackParamList
+      Alert.alert(
+        'Contacto eliminado',
+        'El contacto ha sido eliminado exitosamente.',
+      );
+      navigation.navigate('Contacts');
     }
   };
 
@@ -147,6 +174,14 @@ const DetailsContactScreen: React.FC<Props> = ({ route, navigation }) => {
     }
   };
 
+  const handleMapPress = (event: MapPressEvent) => {
+    if (isEditing) {
+      const { latitude, longitude } = event.nativeEvent.coordinate;
+      setLatitude(latitude);
+      setLongitude(longitude);
+    }
+  };
+
   const saveContact = async () => {
     if (!name || !phone) {
       Alert.alert('Error', 'Por favor, rellena todos los campos obligatorios');
@@ -159,6 +194,8 @@ const DetailsContactScreen: React.FC<Props> = ({ route, navigation }) => {
       phone,
       email,
       photo,
+      latitude: latitude || undefined,
+      longitude: longitude || undefined,
     };
 
     await updateContact(updatedContact);
@@ -184,27 +221,29 @@ const DetailsContactScreen: React.FC<Props> = ({ route, navigation }) => {
           <View style={styles.placeholder} />
         )}
       </TouchableOpacity>
-
+        
       {isEditing ? (
         <>
           <TextInput
             style={styles.input}
             value={name}
             onChangeText={setName}
+            placeholder="Nombre*"
           />
           <TextInput
             style={styles.input}
             value={phone}
-            onChangeText={setPhone}
+            onChangeText={text => setPhone(text.replace(/[^0-9]/g, ''))}
             keyboardType="phone-pad"
+            placeholder="Teléfono*"
           />
           <TextInput
             style={styles.input}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
+            placeholder="Correo Electrónico"
           />
-          <Button title="Guardar Cambios" onPress={saveContact} />
         </>
       ) : (
         <>
@@ -212,6 +251,44 @@ const DetailsContactScreen: React.FC<Props> = ({ route, navigation }) => {
           <Text style={styles.detail}>Teléfono: {phone}</Text>
           {email && <Text style={styles.detail}>Email: {email}</Text>}
         </>
+      )}
+
+      {latitude && longitude ? (
+        <MapView
+          provider={PROVIDER_GOOGLE}
+          style={styles.map}
+          onPress={handleMapPress}
+          initialRegion={{
+            latitude,
+            longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}
+          showsUserLocation={true}
+          showsMyLocationButton={true}
+          scrollEnabled={isEditing}
+          zoomEnabled={isEditing}
+          rotateEnabled={isEditing}
+          pitchEnabled={isEditing}
+        >
+          <Marker coordinate={{ latitude, longitude }} />
+        </MapView>
+      ) : (
+        isEditing && (
+          <View style={styles.mapPlaceholder}>
+            <Button
+              title="Agregar Ubicación"
+              onPress={() => {
+                setLatitude(initialRegion.latitude);
+                setLongitude(initialRegion.longitude);
+              }}
+            />
+          </View>
+        )
+      )}
+
+      {isEditing && (
+        <Button title="Guardar Cambios" onPress={saveContact} />
       )}
     </View>
   );
@@ -249,6 +326,19 @@ const styles = StyleSheet.create({
     marginLeft: 16,
   },
   headerButtonText: { color: 'white', fontSize: 16 },
+  map: {
+    width: '100%',
+    height: 300,
+    marginBottom: 20,
+  },
+  mapPlaceholder: {
+    width: '100%',
+    height: 300,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#eee',
+    marginBottom: 20,
+  },
 });
 
 export default DetailsContactScreen;

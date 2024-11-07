@@ -4,5 +4,6 @@ export type Contact = {
     phone: string;
     email?: string;
     photo?: string; 
+    latitude?: number;
+    longitude?: number;
   };
-  

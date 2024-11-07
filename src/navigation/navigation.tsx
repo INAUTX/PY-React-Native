@@ -21,7 +21,7 @@ const Navigation: React.FC = () => {
         initialRouteName="Contacts"
         screenOptions={{
           headerTintColor: 'white',
-          headerStyle: { backgroundColor: '#007BFF' },
+          headerStyle: { backgroundColor: '#111111' },
         }}
       >
         <Stack.Screen
