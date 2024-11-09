@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Contact } from '../models/contact';
+import axios from 'axios';
+import { BASE_URL, API_KEY } from '@env';
 
 const CONTACTS_KEY = '@contacts';
 
@@ -46,4 +48,22 @@ export const deleteContact = async (id: string): Promise<void> => {
   const contacts = await getContacts();
   const updatedContacts = contacts.filter((contact) => contact.id !== id);
   await AsyncStorage.setItem(CONTACTS_KEY, JSON.stringify(updatedContacts));
+};
+
+export const getWeatherByCoordinates = async (latitude: number, longitude: number) => {
+  try {
+    const response = await axios.get(BASE_URL, {
+      params: {
+        lat: latitude,
+        lon: longitude,
+        units: 'metric', 
+        lang: 'es',
+        appid: API_KEY,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener el clima:', error, );
+    throw error;
+  }
 };

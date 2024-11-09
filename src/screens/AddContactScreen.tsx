@@ -7,6 +7,7 @@ import {
   Alert,
   Image,
   TouchableOpacity,
+  ScrollView
 } from 'react-native';
 import { Contact } from '../models/Contact';
 import { addContact } from '../services/ContactService';
@@ -129,63 +130,69 @@ const AddContactScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity onPress={selectImage}>
-        {photo ? (
-          <Image source={{ uri: photo }} style={styles.image} />
-        ) : (
-          <View style={styles.placeholder}>
-            <Button title="Agregar Foto" onPress={selectImage} />
-          </View>
-        )}
-      </TouchableOpacity>
-      <TextInput
-        style={styles.input}
-        placeholder="Nombre*"
-        value={name}
-        onChangeText={text => setName(text)}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Teléfono*"
-        value={phone}
-        keyboardType="phone-pad"
-        onChangeText={text => setPhone(text.replace(/[^0-9]/g, ''))}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Correo Electrónico"
-        value={email}
-        keyboardType="email-address"
-        onChangeText={text => setEmail(text)}
-      />
-      <Button
-        title={showMap ? 'Ocultar Mapa' : 'Mostrar mapa'}
-        onPress={() => setShowMap(!showMap)}
-      />
-      {showMap && (
-        <MapView
-          provider={PROVIDER_GOOGLE}
-          style={styles.map}
-          onPress={handleMapPress}
-          initialRegion={initialRegion}
-          showsUserLocation={true}
-          showsMyLocationButton={true}
-        >
-          {latitude && longitude && (
-            <Marker coordinate={{ latitude, longitude }} />
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <View style={styles.container}>
+        <TouchableOpacity onPress={selectImage}>
+          {photo ? (
+            <Image source={{ uri: photo }} style={styles.image} />
+          ) : (
+            <View style={styles.placeholder}>
+              <Button title="Agregar Foto" onPress={selectImage} />
+            </View>
           )}
-        </MapView>
-      )}
-      <Button title="Guardar" onPress={saveContact} />
-    </View>
+        </TouchableOpacity>
+        <TextInput
+          style={styles.input}
+          placeholder="Nombre*"
+          value={name}
+          onChangeText={text => setName(text)}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Teléfono*"
+          value={phone}
+          keyboardType="phone-pad"
+          onChangeText={text => setPhone(text.replace(/[^0-9]/g, ''))}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Correo Electrónico"
+          value={email}
+          keyboardType="email-address"
+          onChangeText={text => setEmail(text)}
+        />
+        <Button
+          title={showMap ? 'Ocultar Mapa' : 'Mostrar mapa'}
+          onPress={() => setShowMap(!showMap)}
+        />
+        {showMap && (
+          <MapView
+            provider={PROVIDER_GOOGLE}
+            style={styles.map}
+            onPress={handleMapPress}
+            initialRegion={initialRegion}
+            showsUserLocation={true}
+            showsMyLocationButton={true}
+          >
+            {latitude && longitude && (
+              <Marker coordinate={{ latitude, longitude }} />
+            )}
+          </MapView>
+        )}
+        <Button title="Guardar" onPress={saveContact} />
+      </View>
+    </ScrollView>
   );
+  
 };
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flexGrow: 1,
+  },
   container: { flex: 1, padding: 16 },
   input: {
-    height: 50,
+    height: 70,
     borderColor: 'gray',
     borderWidth: 1,
     marginBottom: 20,
