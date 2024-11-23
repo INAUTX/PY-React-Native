@@ -67,6 +67,7 @@ const AddContactScreen: React.FC<Props> = ({ navigation }) => {
         },
         {
           text: 'Galería',
+
           onPress: async () => {
             const options: ImageLibraryOptions = {
               mediaType: 'photo',

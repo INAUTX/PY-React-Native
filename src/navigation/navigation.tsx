@@ -4,12 +4,18 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import DetailsContactScreen from '../screens/DetailsContactScreen';
 import AddContactScreen from '../screens/AddContactScreen';
 import ContactListScreen from '../screens/ContactListScreen';
+import OnboardingScreen from '../screens/OnboardingScreen';
+import RegisterScreen from '../screens/RegisterScreen';
+import LoginScreen from '../screens/LoginScreen';
 
 
 export type RootStackParamList = {
   Contacts: undefined;
   AddContact: undefined;
+  Onboarding: undefined;
   DetailsContact: { contactId: string };
+  Login: undefined;
+  Register: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -39,6 +45,21 @@ const Navigation: React.FC = () => {
           component={DetailsContactScreen}
           options={{ title: 'Detalles del Contacto' }}
         />
+        <Stack.Screen
+          name="Onboarding"
+          component={OnboardingScreen}
+          options={{ headerShown: false }}
+        />
+                  <Stack.Screen
+            name="Login"
+            component={LoginScreen}
+            options={{ title: 'Iniciar Sesión' }}
+          />
+          <Stack.Screen
+            name="Register"
+            component={RegisterScreen}
+            options={{ title: 'Registrarse' }}
+          />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {
   View,
   TextInput,
-  FlatList,
+  SectionList,
   TouchableOpacity,
   StyleSheet,
   Image,
@@ -22,6 +22,10 @@ type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Contacts'>;
 };
 
+interface ContactsByLetter {
+  [key: string]: Contact[];
+}
+
 const ContactListScreen: React.FC<Props> = ({navigation}) => {
   const [search, setSearch] = useState<string>('');
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -39,6 +43,29 @@ const ContactListScreen: React.FC<Props> = ({navigation}) => {
   const filteredContacts = contacts.filter(contact =>
     contact.name.toLowerCase().includes(search.toLowerCase()),
   );
+
+  const sortedContacts = filteredContacts.sort((a, b) =>
+    a.name.localeCompare(b.name),
+  );
+
+  const contactsByLetter = sortedContacts.reduce(
+    (acc: ContactsByLetter, contact) => {
+      const firstLetter = contact.name.charAt(0).toUpperCase();
+      if (!acc[firstLetter]) {
+        acc[firstLetter] = [];
+      }
+      acc[firstLetter].push(contact);
+      return acc;
+    },
+    {} as ContactsByLetter
+  );
+
+  const sections = Object.keys(contactsByLetter)
+    .sort()
+    .map(letter => ({
+      title: letter,
+      data: contactsByLetter[letter],
+    }));
 
   const renderItem = ({item}: {item: Contact}) => (
     <TouchableOpacity
@@ -66,10 +93,13 @@ const ContactListScreen: React.FC<Props> = ({navigation}) => {
         value={search}
         onChangeText={text => setSearch(text)}
       />
-      <FlatList
-        data={filteredContacts}
+      <SectionList
+        sections={sections}
         keyExtractor={item => item.id}
         renderItem={renderItem}
+        renderSectionHeader={({section: {title}}) => (
+          <Text style={styles.sectionHeader}>{title}</Text>
+        )}
       />
       <TouchableOpacity
         style={styles.addButton}
@@ -115,6 +145,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   addButtonText: {color: 'white', fontSize: 18},
+  sectionHeader: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    backgroundColor: '#f7f7f7',
+    paddingVertical: 5,
+    paddingHorizontal: 16,
+  },
 });
 
 export default ContactListScreen;

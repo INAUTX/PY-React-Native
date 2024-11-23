@@ -1,4 +1,3 @@
-// hooks/useContacts.ts
 import { useState } from 'react';
 
 type Contact = {
